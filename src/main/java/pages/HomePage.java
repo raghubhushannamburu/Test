@@ -2,7 +2,7 @@ package pages;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.log4j.Logger;
 import com.relevantcodes.extentreports.LogStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -12,13 +12,14 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static pages.BasePage.getActionClassReference;
 import static pages.BasePage.getJavaScriptExecutor;
 
 public class HomePage {
-	
+	public static Logger log=Logger.getLogger(HomePage.class);
 	By oculusLogo = By.cssSelector("._2v0_");
 	By signinLink = By.xpath("//a[contains(text(), 'Log In or Sign Up')]");
 	By signinButton = By.xpath("//a[@id='u_0_1v'][contains(text(), 'Sign in')]");
@@ -53,7 +54,11 @@ public class HomePage {
 	By lastnameLabel=By.xpath("//label[@for='LastName']");
 	By FirstnameLabel=By.xpath("//label[@for='FirstName']");
 
-	
+	By solutions=By.xpath("//a[@href='/solutions']");
+
+	By financialaccounting=By.xpath("//div/a[@href='/solutions/financial-services']");
+
+	JavascriptExecutor js=getJavaScriptExecutor();
 	public HomePage(WebDriver driver) {
 		this.driver=driver;
 		wait = new WebDriverWait(driver, 5);
@@ -66,20 +71,20 @@ public class HomePage {
 	public boolean getLogo() {
 		 return driver.findElement(oculusLogo).isDisplayed();
 	}
-	
+
 	public void clickLogInLink() {
 		 driver.findElement(signinLink).click();
 	}
-	
+
 	public void clickSigninLink() {
 		 wait.until(ExpectedConditions.elementToBeClickable(signinButton));
 		 driver.findElement(signinButton).click();
 	}
-	
+
 	public void hoverOverCommunityTab() {
 		new Actions(driver).moveToElement(driver.findElement(communityTab)).perform();
 	}
-	
+
 	public void clickOnForumsTab() {
 		driver.findElement(forumsTab).click();
 	}
@@ -91,9 +96,9 @@ public class HomePage {
 	
 	public void hoverOverHeadsetsTab() {
 		new Actions(driver).moveToElement(driver.findElement(headsetsTab)).perform();
-		
+
 	}
-	
+
 	public List<WebElement> headsetsDropdownResults(){
 		return driver.findElement(headsetsDropdown).findElements(headsetsDropdownResults);
 	}
@@ -101,14 +106,14 @@ public class HomePage {
 	public void clickOculusQuest() {
 		driver.findElement(oculusQuest).click();
 	}
-	
+
 	public void addToCart() {
 		wait.until(ExpectedConditions.visibilityOfElementLocated(buyNowButton));
 		driver.findElement(buyNowButton).click();
 		wait.until(ExpectedConditions.visibilityOfElementLocated(oneTwentyEightGB));
 		driver.findElement(oneTwentyEightGB).click();
 	}
-	
+
 	public boolean isCartPageLoaded() {
 		return wait.until(ExpectedConditions.visibilityOfElementLocated(checkoutButton)).isDisplayed();
 	}
@@ -118,7 +123,8 @@ public class HomePage {
 		try {
 			Thread.sleep(3000);
 			driver.findElement(button1).click();
-		} catch (InterruptedException e) {
+		}catch (Exception e) {
+			log.error("Failed due to error"+e.getMessage());
 
 		}
 	}
@@ -128,7 +134,8 @@ public class HomePage {
 			Actions actions=getActionClassReference();
 			Thread.sleep(3000);
 			actions.moveToElement(driver.findElement(productLink)).click().perform();
-		} catch (InterruptedException e) {
+		}catch (Exception e) {
+			log.error("Failed due to error"+e.getMessage());
 
 		}
 
@@ -143,15 +150,34 @@ public class HomePage {
 		try {
 			Thread.sleep(1000);
 
-			JavascriptExecutor js=getJavaScriptExecutor();
+
 			js.executeScript("arguments[0].click()", driver.findElement(demolink));
 			boolean firstname=driver.findElement(FirstnameLabel).isDisplayed();
 			boolean lastname=driver.findElement(lastnameLabel).isDisplayed();
 			if(firstname &&lastname){
 			  System.out.print("labels matched");
 			}
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			log.error("Failed due to error"+e.getMessage());
 
 		}
 	}
+
+	public void clickSolutionsandCheckfinancialAccountingRL(){
+		try {
+			Thread.sleep(1000);
+
+			driver.findElement(solutions).click();
+			js.executeScript("arguments[0].scrollIntoView", driver.findElement(financialaccounting));
+			js.executeScript("arguments[0].click()", driver.findElement(financialaccounting));
+			String url=driver.getCurrentUrl();
+			Assert.assertEquals(url,"https://www.automationanywhere.com/solutions/financial-services");
+
+		}catch (Exception e) {
+			log.error("Failed due to error"+e.getMessage());
+
+		}
+	}
+
+
 }
